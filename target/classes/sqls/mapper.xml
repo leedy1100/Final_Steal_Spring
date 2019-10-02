@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="base">
+
+	<select id="getRoom" parameterType="String" resultType="com.steal.bs.chatting.ChatDto">
+		SELECT * FROM FINAL_CHAT WHERE NAME = #{name} AND REMAINCOUNT != 0
+	</select>
+
+	<insert id="createChatRoom" parameterType="com.steal.bs.chatting.ChatDto">
+		INSERT INTO FINAL_CHAT (NUM, NAME, PWD, TOTALCOUNT, REMAINCOUNT, CONTENT)
+		VALUES(CHAT_SEQ.NEXTVAL, #{name}, #{pwd}, #{totalcount}, 0, #{content})
+	</insert>
+
+	<select id="getRoomList" resultType="com.steal.bs.chatting.ChatDto">
+		SELECT * FROM FINAL_CHAT
+		WHERE REMAINCOUNT != 0
+	</select>
+
+	<insert id="addRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto">
+		INSERT INTO FINAL_CHATMEMBER(NUM, ID, ROOM, PRIROOM)
+		VALUES(CHAT_MEMBER_SEQ.NEXTVAL, #{id}, #{room}, #{priroom})
+	</insert>
+	
+	<select id="getRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto" resultType="com.steal.bs.chatting.ChatMemberDto">
+		SELECT ID, ROOM, PRIROOM
+		FROM FINAL_CHATMEMBER
+		WHERE ID=#{id}
+	</select>
+
+<!--
+	<select id="sameRoomList" parameterType="com.steal.bs.chatting.ChatMemberDto" resultType="com.steal.bs.chatting.ChatMemberDto">
+		SELECT ID, ROOM, PRIROOM
+		FROM FINAL_CHATMEMBER
+		WHERE ROOM=#{room}
+	</select>
+-->
+
+	<update id="updateRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto">
+		<if test="room != null and room !=''">
+			UPDATE FINAL_CHATMEMBER SET ROOM = #{room}
+			WHERE ID = #{id}
+		</if>
+		<if test="priroom != null and priroom !=''">
+			UPDATE FINAL_CHATMEMBER SET PRIROOM = #{priroom}
+			WHERE ID = #{id}
+		</if>
+	</update>
+	
+<!--
+	<delete id="deleteRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto">
+		DELETE FROM FINAL_CHATMEMBER
+		WHERE ID=#{id}
+	</delete>
+-->
+
+	<update id="updateChatCountInc" parameterType="com.steal.bs.chatting.ChatDto">
+		UPDATE FINAL_CHAT SET REMAINCOUNT = REMAINCOUNT+1
+		WHERE NAME = #{name}
+	</update>
+
+	<update id="updateChatCountDec" parameterType="com.steal.bs.chatting.ChatDto">
+		UPDATE FINAL_CHAT SET REMAINCOUNT = REMAINCOUNT-1
+		WHERE NAME = #{name}
+	</update>
+
+	<delete id="deleteChat">
+		DELETE FROM FINAL_CHAT
+		WHERE REMAINCOUNT = 0
+	</delete>
+
+	<select id="searchRoomList" resultType="com.steal.bs.chatting.ChatDto" parameterType="String">
+		SELECT * FROM FINAL_CHAT
+		WHERE REMAINCOUNT !=0 AND NAME LIKE '%'||#{name}||'%'
+	</select>
+
+</mapper>
