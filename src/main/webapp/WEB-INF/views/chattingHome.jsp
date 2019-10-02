@@ -183,7 +183,7 @@ $(document)
 					if (id == 'admin') {
 						ws = new WebSocket("ws://localhost:8787/bs/echo.do");
 					} else {
-						ws = new WebSocket("ws://192.168.10.7:8787/bs/echo.do");
+						ws = new WebSocket("ws://127.0.0.1:8787/bs/echo.do");
 					}
 					
 					ws.onopen = function() {
