@@ -13,7 +13,7 @@ public class ChatDaoImpl implements ChatDao{
 	private SqlSessionTemplate sqlSession;
 	
 	@Override
-	public ChatDto checkRoom(String name) throws Exception {
+	public ChatDto checkRoom(String name)  {
 		
 		ChatDto dto = null;
 		
@@ -29,7 +29,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void createChatRoom(ChatDto dto) throws Exception {
+	public void createChatRoom(ChatDto dto)  {
 		
 		try {
 			sqlSession.insert(namespace+"createChatRoom", dto);
@@ -40,7 +40,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public List<ChatDto> getRoomList() throws Exception {
+	public List<ChatDto> getRoomList()  {
 		
 		List<ChatDto> list = null;
 		
@@ -56,7 +56,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void addRoomMember(ChatMemberDto mem) throws Exception {
+	public void addRoomMember(ChatMemberDto mem)  {
 		
 		try {
 			sqlSession.insert(namespace+"addRoomMember",mem);
@@ -68,7 +68,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public ChatMemberDto getRoomMember(ChatMemberDto mem) throws Exception {
+	public ChatMemberDto getRoomMember(ChatMemberDto mem)  {
 		
 		ChatMemberDto dto = null;
 		
@@ -84,7 +84,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void updateRoomMember(ChatMemberDto mem) throws Exception {
+	public void updateRoomMember(ChatMemberDto mem)  {
 		
 		try {
 			sqlSession.update(namespace+"updateRoomMember",mem);
@@ -96,7 +96,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void updateChatCountInc(ChatDto dto) throws Exception {
+	public void updateChatCountInc(ChatDto dto)  {
 
 		try {
 			sqlSession.update(namespace+"updateChatCountInc",dto);
@@ -108,7 +108,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void updateChatCountDec(ChatDto dto) throws Exception {
+	public void updateChatCountDec(ChatDto dto)  {
 
 		try {
 			sqlSession.update(namespace+"updateChatCountDec",dto);
@@ -120,7 +120,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public void deleteChat() throws Exception {
+	public void deleteChat()  {
 
 		try {
 			sqlSession.delete(namespace+"deleteChat");
@@ -132,7 +132,7 @@ public class ChatDaoImpl implements ChatDao{
 	}
 
 	@Override
-	public List<ChatDto> searchRoomList(String name) throws Exception {
+	public List<ChatDto> searchRoomList(String name)  {
 		
 		List<ChatDto> list = null;
 		
@@ -145,6 +145,30 @@ public class ChatDaoImpl implements ChatDao{
 	
 		return list;
 		
+	}
+
+	@Override
+	public void deletRoomMember(ChatMemberDto mem) {
+		try {
+			sqlSession.delete(namespace+"deleteRoomMember", mem);
+		} catch (Exception e) {
+			System.out.println("deletRoomMember ERROR");
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public List<String> sameRoomList(String roomname) {
+		List<String> list = null;
+		
+		try {
+			list = sqlSession.selectList(namespace+"selectRoomMember", roomname);
+		} catch (Exception e) {
+			System.out.println("sameRoomList ERROR");
+			e.printStackTrace();
+		}
+	
+		return list;
 	}
 
 }

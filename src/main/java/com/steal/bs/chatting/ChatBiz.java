@@ -4,28 +4,28 @@ import java.util.List;
 
 public interface ChatBiz {
 
-	ChatDto checkRoom(String name) throws Exception;
+	ChatDto checkRoom(String name) ;
 	
-	void createChatRoom(ChatDto dto) throws Exception;
+	void createChatRoom(ChatDto dto) ;
 	
-	List<ChatDto> getRoomList() throws Exception;
+	List<ChatDto> getRoomList() ;
 	
-	void addRoomMember(ChatMemberDto mem) throws Exception;
+	void addRoomMember(ChatMemberDto mem) ;
 	
-	ChatMemberDto getRoomMember(ChatMemberDto mem) throws Exception;
+	ChatMemberDto getRoomMember(ChatMemberDto mem) ;
 
-	//Lsit<ChatMemberDto> sameRoomList(ChatMemberDto mem) throws Exception;
+	List<String> sameRoomList(String roomname) ;
 	
-	void updateRoomMember(ChatMemberDto mem) throws Exception;
+	void updateRoomMember(ChatMemberDto mem) ;
 	
-	//void deletRoomMember(ChatMemberDto mem) throws Exception;
+	void deletRoomMember(ChatMemberDto mem) ;
 
-	void updateChatCountInc(ChatDto dto) throws Exception;
+	void updateChatCountInc(ChatDto dto) ;
 	
-	void updateChatCountDec(ChatDto dto) throws Exception;
+	void updateChatCountDec(ChatDto dto) ;
 
-	void deleteChat() throws Exception;
+	void deleteChat() ;
 
-	List<ChatDto> searchRoomList(String name) throws Exception;
+	List<ChatDto> searchRoomList(String name) ;
 
 }

@@ -7,8 +7,8 @@
 	</select>
 
 	<insert id="createChatRoom" parameterType="com.steal.bs.chatting.ChatDto">
-		INSERT INTO FINAL_CHAT (NUM, NAME, PWD, TOTALCOUNT, REMAINCOUNT, CONTENT)
-		VALUES(CHAT_SEQ.NEXTVAL, #{name}, #{pwd}, #{totalcount}, 0, #{content})
+		INSERT INTO FINAL_CHAT (NUM, NAME, PWD, TOTALCOUNT, REMAINCOUNT, MASTER, USER1, USER2, USER3, USER4, USER5, USER6, CONTENT)
+		VALUES(CHAT_SEQ.NEXTVAL, #{name}, '', #{totalcount}, 0, #{master}, #{user1}, #{user2}, #{user3}, #{user4}, #{user5}, #{user6}, #{content})
 	</insert>
 
 	<select id="getRoomList" resultType="com.steal.bs.chatting.ChatDto">
@@ -27,14 +27,6 @@
 		WHERE ID=#{id}
 	</select>
 
-<!--
-	<select id="sameRoomList" parameterType="com.steal.bs.chatting.ChatMemberDto" resultType="com.steal.bs.chatting.ChatMemberDto">
-		SELECT ID, ROOM, PRIROOM
-		FROM FINAL_CHATMEMBER
-		WHERE ROOM=#{room}
-	</select>
--->
-
 	<update id="updateRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto">
 		<if test="room != null and room !=''">
 			UPDATE FINAL_CHATMEMBER SET ROOM = #{room}
@@ -46,12 +38,12 @@
 		</if>
 	</update>
 	
-<!--
+
 	<delete id="deleteRoomMember" parameterType="com.steal.bs.chatting.ChatMemberDto">
 		DELETE FROM FINAL_CHATMEMBER
 		WHERE ID=#{id}
 	</delete>
--->
+
 
 	<update id="updateChatCountInc" parameterType="com.steal.bs.chatting.ChatDto">
 		UPDATE FINAL_CHAT SET REMAINCOUNT = REMAINCOUNT+1
@@ -71,6 +63,11 @@
 	<select id="searchRoomList" resultType="com.steal.bs.chatting.ChatDto" parameterType="String">
 		SELECT * FROM FINAL_CHAT
 		WHERE REMAINCOUNT !=0 AND NAME LIKE '%'||#{name}||'%'
+	</select>
+	
+	<select id="selectRoomMember" resultType="String" parameterType="String">
+		SELECT ID FROM FINAL_CHATMEMBER
+		WHERE ROOM = #{roomname}
 	</select>
 
 </mapper>

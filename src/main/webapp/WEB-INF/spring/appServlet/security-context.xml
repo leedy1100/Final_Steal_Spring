@@ -1,12 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:beans="http://www.springframework.org/schema/beans"
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:security="http://www.springframework.org/schema/security"
-	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
-	<security:http auto-config='true'>
-		<security:intercept-url pattern="/**" requires-channel="https" />
+	<security:http auto-config='true' use-expressions="true">
+
+		<security:intercept-url pattern="/login" access="permitAll" />
+
+		<security:intercept-url pattern="/resources/**" access="permitAll" />
+
+		<security:intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+
+
+
+		<security:form-login login-page="/login"
+
+			default-target-url="/monitering" username-parameter="username"
+
+			password-parameter="password"
+
+			authentication-failure-url="/login?error"
+
+			always-use-default-target='true' />
+
+
+		<security:logout invalidate-session="true"
+			logout-url="/logout" logout-success-url="/login?logout" />
+			
+		<security:csrf />
+
 	</security:http>
-	
-</beans:beans>
+
+
+
+	<security:authentication-manager>
+
+		<security:authentication-provider
+			user-service-ref="memberService" />
+
+	</security:authentication-manager>
+
+
+
+	<bean id="memberService" class="com.steal.bs.model.ChattingDto">
+
+	</bean>
+
+
+
+</beans>

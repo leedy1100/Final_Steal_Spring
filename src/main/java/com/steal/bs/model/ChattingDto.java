@@ -12,11 +12,12 @@ public class ChattingDto {
 	private String main_email;
 	private int main_birth;
 	private int main_emp;
+	private String authority;
 	
 	public ChattingDto() {}
-	
+
 	public ChattingDto(int main_seq, double main_authority, String main_name, String main_id, String main_password,
-			char main_sex, String main_phonenumber, String main_email, int main_birth, int main_emp) {
+			char main_sex, String main_phonenumber, String main_email, int main_birth, int main_emp, String authority) {
 		this.main_seq = main_seq;
 		this.main_authority = main_authority;
 		this.main_name = main_name;
@@ -27,6 +28,7 @@ public class ChattingDto {
 		this.main_email = main_email;
 		this.main_birth = main_birth;
 		this.main_emp = main_emp;
+		this.authority = authority;
 	}
 
 	public int getMain_seq() {
@@ -109,12 +111,20 @@ public class ChattingDto {
 		this.main_emp = main_emp;
 	}
 
-	@Override
-	public String toString() {
-		return "MainDto [main_seq=" + main_seq + ", main_authority=" + main_authority + ", main_name=" + main_name
-				+ ", main_id=" + main_id + ", main_password=" + main_password + ", main_sex=" + main_sex
-				+ ", main_phonenumber=" + main_phonenumber + ", main_email=" + main_email + ", main_birth=" + main_birth
-				+ ", main_emp=" + main_emp + "]";
+	public String getAuthority() {
+		return authority;
 	}
 
+	public void setAuthority(String authority) {
+		this.authority = authority;
+	}
+
+	@Override
+	public String toString() {
+		return "ChattingDto [main_seq=" + main_seq + ", main_authority=" + main_authority + ", main_name=" + main_name
+				+ ", main_id=" + main_id + ", main_password=" + main_password + ", main_sex=" + main_sex
+				+ ", main_phonenumber=" + main_phonenumber + ", main_email=" + main_email + ", main_birth=" + main_birth
+				+ ", main_emp=" + main_emp + ", authority=" + authority + "]";
+	}
+	
 }

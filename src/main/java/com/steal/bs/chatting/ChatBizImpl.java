@@ -12,53 +12,63 @@ public class ChatBizImpl implements ChatBiz{
 	ChatDao dao;
 	
 	@Override
-	public ChatDto checkRoom(String name) throws Exception {
+	public ChatDto checkRoom(String name)  {
 		return dao.checkRoom(name);
 	}
 
 	@Override
-	public void createChatRoom(ChatDto dto) throws Exception {
+	public void createChatRoom(ChatDto dto)  {
 		dao.createChatRoom(dto);
 	}
 
 	@Override
-	public List<ChatDto> getRoomList() throws Exception {
+	public List<ChatDto> getRoomList()  {
 		return dao.getRoomList();
 	}
 
 	@Override
-	public void addRoomMember(ChatMemberDto mem) throws Exception {
+	public void addRoomMember(ChatMemberDto mem)  {
 		dao.addRoomMember(mem);
 	}
 
 	@Override
-	public ChatMemberDto getRoomMember(ChatMemberDto mem) throws Exception {
+	public ChatMemberDto getRoomMember(ChatMemberDto mem)  {
 		return dao.getRoomMember(mem);
 	}
 
 	@Override
-	public void updateRoomMember(ChatMemberDto mem) throws Exception {
+	public void updateRoomMember(ChatMemberDto mem)  {
 		dao.updateRoomMember(mem);
 	}
 
 	@Override
-	public void updateChatCountInc(ChatDto dto) throws Exception {
+	public void updateChatCountInc(ChatDto dto)  {
 		dao.updateChatCountInc(dto);
 	}
 
 	@Override
-	public void updateChatCountDec(ChatDto dto) throws Exception {
+	public void updateChatCountDec(ChatDto dto)  {
 		dao.updateChatCountDec(dto);
 	}
 
 	@Override
-	public void deleteChat() throws Exception {
+	public void deleteChat()  {
 		dao.deleteChat();
 	}
 
 	@Override
-	public List<ChatDto> searchRoomList(String name) throws Exception {
+	public List<ChatDto> searchRoomList(String name)  {
 		return dao.searchRoomList(name);
+	}
+
+	@Override
+	public void deletRoomMember(ChatMemberDto mem) {
+		dao.deletRoomMember(mem);
+	}
+
+	@Override
+	public List<String> sameRoomList(String roomname) {
+		return dao.sameRoomList(roomname);
 	}
 
 }

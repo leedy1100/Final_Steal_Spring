@@ -13,5 +13,5 @@
 	</websocket:handlers>
 	
 	<bean id="myHandler" class="com.steal.bs.chatting.WebSocket" />
-
+	
 </beans>

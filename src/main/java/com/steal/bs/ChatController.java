@@ -1,11 +1,14 @@
 package com.steal.bs;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.steal.bs.chatting.ChatBiz;
@@ -20,22 +23,21 @@ public class ChatController {
 	ChatBiz chatBiz;
 	
 	@RequestMapping("chat.do")
-	public String chat(Model model, HttpServletRequest request) throws Exception {
+	public String chat(Model model, HttpServletRequest request, @RequestParam("room") String room, HttpServletResponse response, HttpSession session) throws Exception {
 		
-		ChattingDto userDto = (ChattingDto)request.getSession().getAttribute("login");
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
 		
-		ChatMemberDto chatMember = chatBiz.getRoomMember(new ChatMemberDto(0, userDto.getMain_id(), "",""));
-		
-		if(chatMember == null) {
-			chatBiz.addRoomMember(new ChatMemberDto(0, userDto.getMain_id(),"all","all"));
-			
-			chatMember = chatBiz.getRoomMember(new ChatMemberDto(0, userDto.getMain_id(), "",""));
-			
+		ChatDto dto = (ChatDto)session.getAttribute("dto");
+		if(dto==null) {
+			dto = chatBiz.checkRoom(room);
+			model.addAttribute("userinfodto", dto);
 		} else {
-			chatBiz.updateRoomMember(new ChatMemberDto(0,userDto.getMain_id(),"all",""));
+			model.addAttribute("userinfodto", dto);
 		}
 		
-		model.addAttribute("room", "all");
+		model.addAttribute("memberlist", chatBiz.sameRoomList(room));
+		model.addAttribute("room", room);
 		
 		return "chattingHome";
 	}
@@ -60,14 +62,14 @@ public class ChatController {
 	
 	@RequestMapping("checkRoom.do")
 	@ResponseBody
-	public int checkRoom(Model model, String name) throws Exception {
+	public String checkRoom(Model model, String name) throws Exception {
 		
 		ChatDto dto = chatBiz.checkRoom(name);
 		
 		if(dto == null) {
-			return 1;
+			return "1";
 		} else {
-			return 0;
+			return "0";
 		}
 	}
 	
@@ -79,6 +81,9 @@ public class ChatController {
 		chatBiz.updateRoomMember(new ChatMemberDto(0, userDto.getMain_id(), roomName, ""));
 
 		model.addAttribute("room", roomName);
+		
+		ChatDto dto = chatBiz.checkRoom(roomName);
+		model.addAttribute("users", dto);
 		
 		return "chattingHome";
 	}

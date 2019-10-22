@@ -8,17 +8,25 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import com.steal.bs.chatting.ChatBiz;
+import com.steal.bs.chatting.ChatDto;
+import com.steal.bs.chatting.ChatMemberDto;
 import com.steal.bs.model.ChattingDto;
+
 
 
 @Controller
 public class HomeController {
+
+	@Autowired
+	ChatBiz chatBiz;
 	
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
@@ -37,19 +45,31 @@ public class HomeController {
 	}
 	
 	@RequestMapping(value = "chat.tiles", method = RequestMethod.GET)
-	public String tiles(Model model, HttpSession session, @RequestParam("id") String id) {
+	public String tiles(Model model, HttpSession session, @ModelAttribute ChatDto dto) {
 		
-		ChattingDto dto = new ChattingDto();
+		ChatDto checkdto = chatBiz.checkRoom(dto.getName());
 		
-		if(id.equals("zongyeng")) {
-			id="admin";
+		ChattingDto logindto = new ChattingDto();
+		
+		if(checkdto == null) {
+			chatBiz.createChatRoom(dto);
+			logindto.setMain_id(dto.getMaster());
+			logindto.setAuthority("0");
+			model.addAttribute("login", logindto);
+			session.setAttribute("login", logindto);
+			session.setAttribute("dto", dto);
+			chatBiz.addRoomMember(new ChatMemberDto(0, dto.getMaster(),dto.getName(),""));
+		} else {
+			logindto.setMain_id(dto.getUser1());
+			logindto.setAuthority("1");
+			model.addAttribute("login", logindto);
+			session.setAttribute("login", logindto);
+			chatBiz.addRoomMember(new ChatMemberDto(0, dto.getUser1(),dto.getName(),""));
 		}
-	
-		dto.setMain_id(id);
-		model.addAttribute("login", dto);
-		session.setAttribute("login", dto);
 		
-		return "forward:/chat.do";
+		model.addAttribute("room", dto.getName());
+		
+		return "redirect:/chat.do";
 		
 	}
 	

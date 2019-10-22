@@ -2,8 +2,8 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<%request.setCharacterEncoding("UTF-8");%>
-<%response.setContentType("text/html; charset=UTF-8");%>
+<% request.setCharacterEncoding("UTF-8"); %>
+<% response.setContentType("text/html; charset=UTF-8"); %>
 
 <%@ page session="false"%>
 <html>
@@ -16,3 +16,5 @@
 	<P>The time on the server is ${serverTime}.</P>
 </body>
 </html>
+
+
