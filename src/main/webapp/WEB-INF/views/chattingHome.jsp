@@ -30,7 +30,6 @@ $(function(){
 
 function memberlistupdate(){
 <%
-
 	List<String> list = (List<String>)request.getAttribute("memberlist");
 	if(list!=null){
 		for(int i = 0; i<list.size(); i++){
@@ -55,6 +54,12 @@ body{
 	margin: 0px;
 	width: 14%;
 	height: auto;
+}
+
+#videos>div{
+	display:inline-block;
+	width: 14%;
+	
 }
 
 </style>
