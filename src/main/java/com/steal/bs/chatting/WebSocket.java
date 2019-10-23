@@ -28,7 +28,7 @@ public class WebSocket extends TextWebSocketHandler {
 	private Map<WebSocketSession, String> mapList = new HashMap<>();
 	private Map<WebSocketSession, String> roomList = new HashMap<>();
 
-	private List<String> userList = new ArrayList<>();
+	/* private List<String> userList = new ArrayList<>(); */
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -53,19 +53,21 @@ public class WebSocket extends TextWebSocketHandler {
 
 		for (int i = 0; i < sessionList.size(); i++) {
 
-			String roomName = roomList.get(sessionList.get(i));
-
 			if (userRoom.getRoom().equals(roomList.get(sessionList.get(i)))) {
 				sessionList.get(i).sendMessage(new TextMessage(JsonDataOpen(userId)));
 			}
 
-			userList = informUser(mapList, roomName);
-			ChatUtil chatUtil = new ChatUtil();
-			String userListMessage = chatUtil.split(userList);
-			sessionList.get(i).sendMessage(new TextMessage(JsonUser(userListMessage)));
-
-			String roomNames = getRoomName();
-			sessionList.get(i).sendMessage(new TextMessage(JsonRoom(roomNames)));
+			/*
+			 * String roomName = roomList.get(sessionList.get(i));
+			 * 같은방 접속자 리스트 보여준다
+			 * userList = informUser(mapList, roomName); ChatUtil chatUtil = new ChatUtil();
+			 * String userListMessage = chatUtil.split(userList);
+			 * sessionList.get(i).sendMessage(new TextMessage(JsonUser(userListMessage)));
+			 * 
+			 * 방 리스트 보내준다.
+			 * String roomNames = getRoomName(); sessionList.get(i).sendMessage(new
+			 * TextMessage(JsonRoom(roomNames)));
+			 */
 			
 		}
 
@@ -95,17 +97,19 @@ public class WebSocket extends TextWebSocketHandler {
 			}
 		}
 		
-		for (int i = 0; i < sessionList.size(); i++) {
-			String roomName = roomList.get(sessionList.get(i));
-
-			userList = informUser(mapList, roomName);
-			ChatUtil chatUtil = new ChatUtil();
-			String userListMessage = chatUtil.split(userList);
-			sessionList.get(i).sendMessage(new TextMessage(JsonUser(userListMessage)));
-			System.out.println(sessionList.get(i));
-			String roomNames = getRoomName();
-			sessionList.get(i).sendMessage(new TextMessage(JsonRoom(roomNames)));
-		}
+		/*
+		 * 위와 같음
+		 * for (int i = 0; i < sessionList.size(); i++) { String roomName =
+		 * roomList.get(sessionList.get(i));
+		 * 
+		 * userList = informUser(mapList, roomName); ChatUtil chatUtil = new ChatUtil();
+		 * String userListMessage = chatUtil.split(userList);
+		 * sessionList.get(i).sendMessage(new TextMessage(JsonUser(userListMessage)));
+		 * System.out.println(sessionList.get(i));
+		 * 
+		 * String roomNames = getRoomName(); sessionList.get(i).sendMessage(new
+		 * TextMessage(JsonRoom(roomNames))); }
+		 */
 		
 		chatBiz.deletRoomMember(new ChatMemberDto(0, userId, "", ""));
 		chatBiz.deleteChat();
@@ -250,8 +254,8 @@ public class WebSocket extends TextWebSocketHandler {
 	public String JsonData(String id, Object msg) {
 
 		JsonObject jsonObject = Json.createObjectBuilder()
-				.add("message", "<i class='user icon'></i><a href='#none' onclick=\"insertWisper('" + id + "')\"><b>["
-						+ id + "]</b></a> : " + msg)
+				.add("message", "<p class="+id+" align='left'><b><a href='#none' onclick=\"insertWisper('" + id + "')\"><b>["
+						+ id + "]</b></a> : " + msg + "</b></p>")
 				.build();
 		StringWriter write = new StringWriter();
 
@@ -265,8 +269,8 @@ public class WebSocket extends TextWebSocketHandler {
 
 	public String JsonDataOpen(String id) {
 
-		JsonObject jsonObject = Json.createObjectBuilder().add("message", "<a href='#none' onclick=\"insertWisper('"
-				+ id + "')\"><b>[" + id + "]</b> 님이 <b style='color:blue'>접속</b>하였습니다.</a>").build();
+		JsonObject jsonObject = Json.createObjectBuilder().add("message", "<p align='center'><a href='#none' onclick=\"insertWisper('"
+				+ id + "')\"><b>[" + id + "]</b> 님이 <b style='color:blue'>접속</b>하였습니다.</a></p>").build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
@@ -280,7 +284,7 @@ public class WebSocket extends TextWebSocketHandler {
 	public String JsonDataClose(String id) {
 
 		JsonObject jsonObject = Json.createObjectBuilder()
-				.add("message", "<b>[" + id + "]</b> 님이 <b style='color:red'>퇴장</b>하였습니다.").build();
+				.add("message", "<p align='center'><b>[" + id + "]</b> 님이 <b style='color:red'>퇴장</b>하였습니다.</p>").build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
@@ -295,9 +299,7 @@ public class WebSocket extends TextWebSocketHandler {
 
 		JsonObject jsonObject = Json.createObjectBuilder()
 				.add("message",
-						"<a href='#none' onclick=\"insertWisper('" + fromId
-								+ "')\"><i class='user icon'></i> <b style='color:green'>[" + fromId
-								+ "]</b>님의 귓속말</a> : " + msg)
+						"<p align='left'><b><a href='#none' onclick=\"insertWisper('" + fromId + "')\"><b style='color:green'>[" + fromId + "]</b>님의 귓속말</a> : " + msg +"</b></p>")
 				.build();
 		StringWriter write = new StringWriter();
 
@@ -335,24 +337,22 @@ public class WebSocket extends TextWebSocketHandler {
 
 	}
 
-	private List<String> informUser(Map<WebSocketSession, String> maplist, String room) throws Exception {
-
-		List<String> list = new ArrayList<>();
-
-		Iterator<WebSocketSession> sessionIds = maplist.keySet().iterator();
-		while (sessionIds.hasNext()) {
-			WebSocketSession sessionId = sessionIds.next();
-			String value = maplist.get(sessionId);
-			
-			String userRoom = roomList.get(sessionId);
-
-			if (userRoom.equals(room)) {
-				list.add(value);
-			}
-		}
-
-		return list;
-	}
+	/*
+	 * private List<String> informUser(Map<WebSocketSession, String> maplist, String
+	 * room) throws Exception {
+	 * 
+	 * List<String> list = new ArrayList<>();
+	 * 
+	 * Iterator<WebSocketSession> sessionIds = maplist.keySet().iterator(); while
+	 * (sessionIds.hasNext()) { WebSocketSession sessionId = sessionIds.next();
+	 * String value = maplist.get(sessionId);
+	 * 
+	 * String userRoom = roomList.get(sessionId);
+	 * 
+	 * if (userRoom.equals(room)) { list.add(value); } }
+	 * 
+	 * return list; }
+	 */
 
 	public String getRoomName() throws Exception {
 

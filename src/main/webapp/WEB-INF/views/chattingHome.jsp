@@ -19,6 +19,17 @@
 
 <script type="text/javascript">
 
+var height = window.innerHeight;
+$(function(){
+	$("#myvideo").css("height",(height/100)*69);
+	$("#output").css("height",(height/100)*65);
+});
+
+$(window).resize(function() {
+	height = window.innerHeight;
+	$("#myvideo").css("height",(height/100)*69);
+	$("#output").css("height",(height/100)*65);
+});
 
 $(function(){
 	var materID = $("#userId").val();
@@ -36,11 +47,26 @@ function memberlistupdate(){
 %>
 	$("#<%=list.get(i)%>M").css("list-style-type","disc");
 <%
-			System.out.println(list.size());
 		}
 	}
 %>
 }
+
+$(function(){
+	$("#videos").on('mousewheel', function(e){
+		if(e.originalEvent.wheelDelta==120){
+			this.scrollLeft -=30;
+			if(this.scrollLeft>1){
+				e.preventDefault();
+			}
+		} else if(e.originalEvent.wheelDelta==-120){
+			this.scrollLeft +=30;
+			if(this.scrollWidth>(this.scrollLeft+(window.innerWidth*7/10))){
+				e.preventDefault();
+			}
+		}
+	});
+});
 
 </script>
 
@@ -48,25 +74,108 @@ function memberlistupdate(){
 
 body{
 	margin: 0px;
+	background-color: aqua; 
+}
+
+#videos{
+	background-color: #778899;
+	display: inline-block;
+	width: 86%;
+	white-space: nowrap;
+	height: 276px;
+	overflow: auto;
 }
 
 #videos>video{
 	margin: 0px;
-	width: 14%;
+	width: 260px;
 	height: auto;
 }
 
-#videos>div{
-	display:inline-block;
+#memberList{
+	background-color: #D3D3D3;
+	position: relative;
+	float: right;
 	width: 14%;
+	height: 276px;
+	overflow: auto;
 	
+}
+
+#output{
+	background-color: #F8F8FF;
+	display: inline-block;
+	width: 70%; 
+	overflow-y: scroll; 
+}
+
+#sendM{
+	background-color: #F8F8FF;
+	display: inline-block;
+	width: 70%;
+	white-space: nowrap;
+}
+
+#wisper{
+	width: 9%;
+	font-weight: bold;
+}
+
+#textID{
+	width: 79%;
+	font-weight: bold;
+}
+
+#buttonMessage{
+	width: 9%; 
+}
+
+#output>p{
+	margin-top: 1%;
+	margin-bottom: 1%;
+}
+
+#output>p[align="right"]>a{
+	display: inline-block;
+	max-width: 30%;
+	margin-right: 5%;
+	padding: 1%;
+	background-color: #F0E68C;
+	border-radius: 20px 10px;
+	white-space: pre-wrap;
+	word-break:break-all;
+}
+
+#output>p[align="left"]>b{
+	display: inline-block;
+	max-width: 30%;
+	margin-left: 5%;
+	padding: 1%;
+	background-color: #F0E68C;
+	border-radius: 10px 20px;
+	white-space: pre-wrap;
+	word-break:break-all;
+}
+
+#myvideo{
+	position: relative;
+	background-color: #FAD0E6;
+	float: right;
+	margin-right: 1%;
+	width: 28%;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#myvideo>video{
+	top: 20px;
+	width: 100%;
 }
 
 </style>
 
 </head>
 <body>
-
 	<input type="hidden" id="userId" value="${login.main_id}" />
 	<input type="hidden" id="room" value="${room}" />
 
@@ -75,79 +184,49 @@ body{
 	</div>
 	
 	<div id="videos">
-		<video id="video1" id="one" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<video id="video2" id="two" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<video id="video3" id="three" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<video id="video4" id="foul" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<video id="video5" id="five" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<video id="video6" id="six" class="received_video" autoplay poster="resources/image/waitperson.png" ></video>
-		<div>
-			<ul style=" list-style-type: circle; " >
-			<c:if test="${not empty userinfodto.master}">
-				<li id="${userinfodto.master}M">${userinfodto.master}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user1}">
-				<li id="${userinfodto.user1}M">${userinfodto.user1}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user2}">
-				<li id="${userinfodto.user2}M">${userinfodto.user2}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user3}">
-				<li id="${userinfodto.user3}M">${userinfodto.user3}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user4}">
-				<li id="${userinfodto.user4}M">${userinfodto.user4}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user5}">
-				<li id="${userinfodto.user5}M">${userinfodto.user5}</li>
-			</c:if>
-			<c:if test="${not empty userinfodto.user6}">
-				<li id="${userinfodto.user6}M">${userinfodto.user6}</li>
-			</c:if>
-			</ul>
-		</div>
+		<video id="video1" id="one" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #D3D3D3; "  ></video>
+		<video id="video2" id="two" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #90EE90; " ></video>
+		<video id="video3" id="three" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFB6C1; " ></video>
+		<video id="video4" id="foul" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFA07A; " ></video>
+		<video id="video5" id="five" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #20B2AA; " ></video>
+		<video id="video6" id="six" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #87CEFA; " ></video>
+	</div>
+	
+	<div id="memberList" >
+		<ul style=" list-style-type: circle; " >
+		<c:if test="${not empty userinfodto.master}">
+			<li id="${userinfodto.master}M">${userinfodto.master}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user1}">
+			<li id="${userinfodto.user1}M">${userinfodto.user1}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user2}">
+			<li id="${userinfodto.user2}M">${userinfodto.user2}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user3}">
+			<li id="${userinfodto.user3}M">${userinfodto.user3}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user4}">
+			<li id="${userinfodto.user4}M">${userinfodto.user4}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user5}">
+			<li id="${userinfodto.user5}M">${userinfodto.user5}</li>
+		</c:if>
+		<c:if test="${not empty userinfodto.user6}">
+			<li id="${userinfodto.user6}M">${userinfodto.user6}</li>
+		</c:if>
+		</ul>
 	</div>
 
-	<table
-		style="height: 600px; width: 900px; margin: 0; padding: 0; text-align: center">
-
-		<col width="200px" />
-		<col width="400px" />
-
-		<col width="300px" />
-
-		<tr height="600px;">
-			<td style="width: 550px" colspan="2">
-				<div
-					style="width: 100%; height: 550px; overflow-y: scroll; overflow-x: inherit;"
-					class="ui message" id="output"></div>
-			</td>
-
-			<td style="width: 300px">
-				
-
-				<div style="width: 100%; height: 400px; overflow-y: scroll;"
-					class="ui message" id="listPeople"></div>
-			</td>
-		</tr>
-
-		<tr height="100px;">
-			<td><input type="text" id="wisper" value=""
-				style="width: 100%; height: 100%; font-weight: bold;"
-				class="ui message" name="who" placeholder="귓속말" /></td>
-			<td><input type="text" id="textID" size="50" value=""
-				style="width: 100%; height: 100%; font-weight: bold;"
-				class="ui message blue" name="chatInput" placeholder="내용 입력" /></td>
-			<td><input type="button" id="buttonMessage" value="보내기"
-				style="width: 100%; height: 100%;" class="ui primary button" /></td>
-		</tr>
-	</table>
-
-	<h1>Realtime communication with WebRTC</h1>
-	<video id="video" id="zero" autoplay></video>
+	<div class="ui message" id="output"></div>
+	<div id="myvideo"><video id="video" id="zero" autoplay></video></div>
+	<div id="sendM">
+		&nbsp;<input type="text" id="wisper" value="" class="ui message" name="who" placeholder="귓속말" />
+		<input type="text" id="textID" size="50" value="" class="ui message blue" name="chatInput" placeholder="내용 입력" />
+		<input type="button" id="buttonMessage" value="보내기" class="ui primary button" />
+	</div>
 	
-
-	<button id="join">join</button>
+	
 
 </body>
 
@@ -164,10 +243,7 @@ body{
 		if (wisper == "" && msg != "") {
 			ws.send(msg + "!%/" + "" + "!%/" + room);
 
-			$("#output").append(
-					"<i class='user icon'></i>"
-							+ "<b style='color:blue'>[${login.main_id}]</b> : "
-							+ msg + "<br/>");
+			$("#output").append("<p align='right'><a>"+ msg + "</a></p>");
 
 			$("#output").scrollTop(99999999);
 			$("#textID").val("");
@@ -183,10 +259,7 @@ body{
 				
 				ws.send(msg + "!%/" + wisper + "!%/" + room);
 				$("#output").append(
-					"<i class='user icon'</i>"
-							+ "<b style='color:blue'>[${login.main_id}]</b> : "
-							+ "[<b>" + wisper + "</b>]님에게 귓속말 : " + msg
-							+ "<br/>");
+					"<p align='right' ><a>[<b>" + wisper + "</b>]님에게 귓속말 : " + msg + "</a></p>");
 
 				$("#output").scrollTop(99999999);
 				$("#textID").val("");
@@ -456,10 +529,8 @@ function handleTrackEvent(event) {
 	
 	var remoteVideo = document.getElementsByClassName("received_video");
 	
-	for(var i = 0; i < roomUserNumber-1 ; i++){
-		console.log(event.streams[i]);
-		remoteVideo.item(i).srcObject = event.streams[i];
-	}
+	console.log(event.streams[0]);
+	remoteVideo.item(0).srcObject = event.streams[0];
 		
 	console.log("handleRemoteStreamAdded 끝");
 }
@@ -536,7 +607,7 @@ async function websocket() {
 	
 	ws.onopen = function() {
 		
-		$("#output").append("<b>채팅방에 참여했습니다.</b> : " + $("#room").val()+ "<br/>");
+		$("#output").append("<p align='center'><b>채팅방에 참여했습니다.</b> : " + $("#room").val()+ "</p>");
 		
 		$("#buttonMessage").click(function() {
 			sendmsgform();	
@@ -675,16 +746,17 @@ async function websocket() {
 		
 		var jsonData = JSON.parse(message.data);
 		if (jsonData.message != null) {
-			$("#output").append(jsonData.message + "<br>");
+			$("#output").append(jsonData.message);
 			$("#output").scrollTop(99999999);
 		}
 		
-		var jsonData2 = JSON.parse(message.data);
+		/* var jsonData2 = JSON.parse(message.data);
 		if (jsonData2.list != null) {
 			$("#listPeople").html(jsonData2.list);
-		}
+			<a href="#none" onclick="insertWisper('zongyeng')">zongyeng<p></p></a>
+		} */
 		
-		var jsonData3 = JSON.parse(message.data);
+		/* var jsonData3 = JSON.parse(message.data);
 		if (jsonData3.room != null) {
 			var roomSplit = jsonData3.room.split(',');
 			
@@ -719,12 +791,12 @@ async function websocket() {
 			}
 			
 			$("#getRoomList").html(str);
-		}
+		} */
 	};
 	
 	ws.onclose = function(event) { };
 	
-	var constraints = { audio: true, video: { width : 300, height : 200, frameRate: { max: 30 } } }; 
+	var constraints = { audio: true, video: { width : 550, height : 550, frameRate: { max: 30 } } }; 
 	
 	navigator.mediaDevices.getUserMedia(constraints).then(function(mediaStream) {
 		
@@ -773,8 +845,6 @@ async function websocket() {
 $(document).ready(function() {
 	websocket();
 });
-
-
 
 </script>
 </html>
