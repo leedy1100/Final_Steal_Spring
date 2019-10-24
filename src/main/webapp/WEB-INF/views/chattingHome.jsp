@@ -1,3 +1,4 @@
+<%@page import="java.util.ArrayList"%>
 <%@page import="com.steal.bs.model.ChattingDto"%>
 <%@page import="java.util.List"%>
 <%@page import="com.steal.bs.chatting.ChatDto"%>
@@ -41,7 +42,9 @@ $(function(){
 
 function memberlistupdate(){
 <%
+	ChattingDto logindto = (ChattingDto)session.getAttribute("login");
 	List<String> list = (List<String>)request.getAttribute("memberlist");
+	ChatDto dto = (ChatDto)request.getAttribute("userinfodto");
 	if(list!=null){
 		for(int i = 0; i<list.size(); i++){
 %>
@@ -184,12 +187,12 @@ body{
 	</div>
 	
 	<div id="videos">
-		<video id="video1" id="one" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #D3D3D3; "  ></video>
-		<video id="video2" id="two" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #90EE90; " ></video>
-		<video id="video3" id="three" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFB6C1; " ></video>
-		<video id="video4" id="foul" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFA07A; " ></video>
-		<video id="video5" id="five" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #20B2AA; " ></video>
-		<video id="video6" id="six" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #87CEFA; " ></video>
+		<video id="video1" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #D3D3D3; "  ></video>
+		<video id="video2" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #90EE90; " ></video>
+		<video id="video3" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFB6C1; " ></video>
+		<video id="video4" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #FFA07A; " ></video>
+		<video id="video5" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #20B2AA; " ></video>
+		<video id="video6" class="received_video" autoplay poster="resources/image/waitperson.png" style=" background-color: #87CEFA; " ></video>
 	</div>
 	
 	<div id="memberList" >
@@ -324,66 +327,10 @@ body{
 	
 	
 	/* ------------------------------------------------------------------------------------------------------------------------ */
-	
-var isChannelReady = false;
-var isInitiator = false;
-var isStarted = false;
-var localStream;
-var pc;
-var remoteStream;
 
 var video = document.getElementById('video');
-var video1 = document.getElementById('video1');
-var video2 = document.getElementById('video2');
-var video3 = document.getElementById('video3');
-var video4 = document.getElementById('video4');
-var video5 = document.getElementById('video5');
-var video6 = document.getElementById('video6');
-
-var roomId;
-var remoteUserId;
-var isOffer;
-var localLargeStream;
-var localmediumStream;
-var localSmallStream;
-var streams = [];
-var peer; // offer or answer peer
-var peers = [];
-var iceServers = {
-	iceServers : [ {
-		url : 'stun:stun.l.google.com:19302'
-	}, {
-		url : 'stun:stun1.l.google.com:19302'
-	}, {
-		url : 'stun:stun2.l.google.com:19302'
-	}, {
-		url : 'turn:107.150.19.220:3478',
-		credential : 'turnserver',
-		username : 'subrosa',
-	}, ],
-};
-
-var peerConnectionOptions = {
-	optional : [ {
-		DtlsSrtpKeyAgreement : 'true',
-	}, ],
-};
-var mediaConstraints = {
-	mandatory : {
-		OfferToReceiveAudio : true,
-		OfferToReceiveVideo : true,
-	},
-};
-
-// DOM
-var $body = $('body');
-var $roomList = $('#room-list');
-var $videoWrap = $('#video-wrap');
-var $tokenWrap = $('#token-wrap');
-var $uniqueToken = $('#unique-token');
-var $joinWrap = $('#join-wrap');
-
-
+	
+var connections = [];
 
 var pcConfig = {
 		'iceServers': [{
@@ -400,28 +347,55 @@ window.onbeforeunload = function () {
 	ws.send("room: "+room+", type: bye, userID: "+userID);
 }
 
-function PeerStart() {
+function PeerStart(userID) {
 	console.log("PeerStart 시작")
-    if (!isStarted && typeof window.localStream !== 'undefined' && isChannelReady) {
-    	console.log('>>>>>> creating peer connection');
-        createPeerConnection();
-        localStream.getTracks().forEach(track => pc.addTrack(track ,localStream));
-        isStarted = true;
-    }
+
+	console.log('>>>>>> creating peer connection');
+	
+	var pc = createPeerConnection(userID);
+        
+	window.localStream.getTracks().forEach(track => pc.addTrack(track , window.localStream));
+   
     console.log("PeerStart 끝");
 }
 
-function createPeerConnection() {
+function createPeerConnection(userID) {
 	console.log("createPeerConnection 시작");
 	
+	var peer = {
+			userID : userID,
+			pc : null
+	};
+	
 	try {
-		pc = new RTCPeerConnection(pcConfig);
-		pc.onicecandidate = handleIceCandidate;
-		pc.ontrack = handleTrackEvent;
-		if(authority==0){
-			pc.onnegotiationneeded = handleNegotiationNeededEvent;
+		peer.pc = new RTCPeerConnection(pcConfig);
+		peer.pc.onicecandidate = function(event) {
+			var room = $("#room").val();
+			console.log("handleIceCandidate 시작");
+			console.log('icecandidate event: ', event);
+			if (event.candidate) {
+				ws.send("userID: "+userID+", fromID: "+id+", room: "+room+"~"+event.candidate.candidate+"~"+event.candidate.component+"~"+event.candidate.foundation+"~"+event.candidate.address+"~"+event.candidate.port+"~"+event.candidate.priority+"~"+event.candidate.protocol+"~"+event.candidate.relatedAddress+"~"+event.candidate.relatedPort+"~"+event.candidate.sdpMid+"~"+event.candidate.sdpMLineIndex+"~"+event.candidate.tcpType+"~"+event.candidate.type+"~"+event.candidate.usernameFragment);
+			} else {
+				console.log('End of candidates.');
+			}
+			console.log("handleIceCandidate 끝");
 		}
-		pc.onremovetrack = handleRemoveTrackEvent;
+		
+		peer.pc.ontrack = function(event) {
+			console.log("handleRemoteStreamAdded 시작");
+			console.log('Remote stream added.');
+			console.log(userID);
+			var remoteVideo = document.getElementsByClassName(userID);
+			console.log(remoteVideo);
+
+			console.log(event);
+			console.log(event.streams[0]);
+			
+			remoteVideo.item(0).srcObject = event.streams[0];
+			
+			console.log("handleRemoteStreamAdded 끝");
+		};
+		peer.pc.onremovetrack = handleRemoveTrackEvent;
 		
 		console.log('Created RTCPeerConnnection');
 	} catch (e) {
@@ -430,89 +404,82 @@ function createPeerConnection() {
 		return;
 	}
 	
-	peers.push(pc);
+	connections.push(peer);
 	
 	console.log("createPeerConnection 끝");
 	
-	return pc;
+	return peer.pc;
 }
 
-function handleIceCandidate(event) {
-	var room = $("#room").val();
-	console.log("handleIceCandidate 시작");
-	console.log('icecandidate event: ', event);
-	if (event.candidate) {
-		ws.send("room: "+room+"~"+event.candidate.candidate+"~"+event.candidate.component+"~"+event.candidate.foundation+"~"+event.candidate.address+"~"+event.candidate.port+"~"+event.candidate.priority+"~"+event.candidate.protocol+"~"+event.candidate.relatedAddress+"~"+event.candidate.relatedPort+"~"+event.candidate.sdpMid+"~"+event.candidate.sdpMLineIndex+"~"+event.candidate.tcpType+"~"+event.candidate.type+"~"+event.candidate.usernameFragment);
-	} else {
-		console.log('End of candidates.');
+function getPeer(userID) {
+	console.log('getPeer', arguments);
+	var peer = null;
+
+	for (var i = 0; i < connections.length; i++) {
+		if (connections[i].userID === userID) {
+			peer = connections[i].pc;
+		}
 	}
-	console.log("handleIceCandidate 끝");
+
+	return peer;
 }
 
-
-async function handleNegotiationNeededEvent() {
+async function handleNegotiationNeededEvent(userID) {
 	console.log("doCall 시작");
 	
-	const offer = await pc.createOffer();
-	await onCreateOfferSuccess(offer);
+	var peer = getPeer(userID);
 	
-	console.log("doCall 끝");
-}
-
-async function onCreateOfferSuccess(offer) {
-	
-	console.log('Sending offer to peer');
-	
+	const offer = await peer.createOffer();
 	try {
-		await pc.setLocalDescription(offer);
-		onSetLocalSuccess(pc);
+		console.log('Sending offer to peer');
+		await peer.setLocalDescription(offer);
+		onSetLocalSuccess(peer);
 		var room = $("#room").val();
-		await ws.send("{room: "+room+", type: \"offer\", sdp: \""+pc.localDescription.sdp+"\"}");
+		await ws.send("userID: "+userID+", fromID: "+id+", room: "+room+", type: \"offer\", sdp: \""+peer.localDescription.sdp+"\"");
 	} catch (e) {
 		console.log('createOffer() error: ', e);
 	}
 	
+	console.log("doCall 끝");
 }
 
-function onSetLocalSuccess(pc) {
-	console.log(pc+' setLocalDescription complete');
+function onSetLocalSuccess(peer) {
+	console.log(peer+' setLocalDescription complete');
 }
 
 
-async function doAnswer() {
+async function doAnswer(fromID) {
 	console.log("doAnswer 시작");
 	
-	const answer = await pc.createAnswer();
-	await onCreateAnswerSuccess(answer);
+	var peer = getPeer(fromID);
 	
-	console.log("doAnswer 끝");
-}
-
-async function onCreateAnswerSuccess(answer) {
-	
-	console.log('Sending answer to peer');
+	const answer = await peer.createAnswer();
 	
 	try {
-		await pc.setLocalDescription(answer);
-		onSetLocalSuccess(pc);
+		console.log('Sending answer to peer');
+		await peer.setLocalDescription(answer);
+		onSetLocalSuccess(peer);
 		var room = $("#room").val();
-		ws.send("{room: "+room+", type: \"answer\", sdp: \""+pc.localDescription.sdp+"\"}");
+		ws.send("fromID: "+fromID+", userID: "+id+", room: "+room+", type: \"answer\", sdp: \""+peer.localDescription.sdp+"\"");
 	} catch (e) {
 		console.log('createAnswer() error: ', e);
 	}
 	
+	console.log("doAnswer 끝");
 }
 
 async function onIceCandidate(jsoncandidate) {
 	
 	try {
+		var peer = getPeer(jsoncandidate.fromID);
+		
 		var candidate = new RTCIceCandidate({
 			sdpMid: jsoncandidate.sdpMid,
 			sdpMLineIndex: jsoncandidate.sdpMLineIndex,
 			candidate: jsoncandidate.candidate
 		});
 		
-		await pc.addIceCandidate(candidate);
+		await peer.addIceCandidate(candidate);
 		
 		console.log("pc.addIceCandidate 통과");
 		
@@ -520,19 +487,6 @@ async function onIceCandidate(jsoncandidate) {
 		console.log('onIceCandidate() error: ', e);
 	}
 	
-}
-
-
-function handleTrackEvent(event) {
-	console.log("handleRemoteStreamAdded 시작");
-	console.log('Remote stream added.');
-	
-	var remoteVideo = document.getElementsByClassName("received_video");
-	
-	console.log(event.streams[0]);
-	remoteVideo.item(0).srcObject = event.streams[0];
-		
-	console.log("handleRemoteStreamAdded 끝");
 }
 
 function handleRemoteHangup() {
@@ -551,7 +505,7 @@ function handleRemoteHangup() {
 function handleRemoveTrackEvent(event) {
 	
 	var stream = document.getElementsByClassName("received_video").srcObject;
-	var trackList = stream.getTracks();
+	var trackList = stream.item(0).getTracks();
 
 	
 	if (trackList.length == 0) {
@@ -561,10 +515,12 @@ function handleRemoveTrackEvent(event) {
 }
 
 
-function closeVideoCall() {
+function closeVideoCall(userID) {
 	var remoteVideo = document.getElementsByClassName("received_video");
 	var localVideo = document.getElementById("video");
 
+	var pc = getPeer(userID);
+	
 	if (pc) {
 		pc.ontrack = null;
 		pc.onremovetrack = null;
@@ -576,19 +532,19 @@ function closeVideoCall() {
 		pc.onnegotiationneeded = null;
 
 		if (remoteVideo.srcObject) {
-			remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+			remoteVideo.item(0).srcObject.getTracks().forEach(track => track.stop());
 		}
 
 		if (localVideo.srcObject) {
-			localVideo.srcObject.getTracks().forEach(track => track.stop());
+			localVideo.item(0).srcObject.getTracks().forEach(track => track.stop());
 		}
 		
 		pc.close();
 		pc = null;
 	}
 	
-	remoteVideo.removeAttribute("src");
-	remoteVideo.removeAttribute("srcObject");
+	remoteVideo.item(0).removeAttribute("src");
+	remoteVideo.item(0).removeAttribute("srcObject");
 	localVideo.removeAttribute("src");
 	localVideo.removeAttribute("srcObject");
 	
@@ -628,10 +584,6 @@ async function websocket() {
 					$("#searchRoomText").val("");
 				});
 		
-		if(authority==0) {
-			isInitiator = true;
-		}
-		
 	};
 
 	
@@ -641,9 +593,6 @@ async function websocket() {
 		
 		var jsonjoin = JSON.parse(message.data);
 		if(jsonjoin.type=='join') {
-			if(authority==0){
-				handleNegotiationNeededEvent();
-			}
 			
 			userid = jsonjoin.userID;
 			switch (userid) {
@@ -673,6 +622,8 @@ async function websocket() {
 			}
 			$("#"+idclone+"M").css("list-style-type","disc");
 			
+			handleNegotiationNeededEvent(idclone);
+			
 			return;
 		}
 		
@@ -683,19 +634,21 @@ async function websocket() {
 			if(authority==0){
 				return;
 			}
-			
-			pc.setRemoteDescription(new RTCSessionDescription(jsonoffer));
-			await doAnswer();
+			var peer = getPeer(jsonoffer.fromID);
+			await peer.setRemoteDescription(jsonoffer);
+			await doAnswer(jsonoffer.fromID);
 			
 			return;
 		}
 		
 		var jsonanswer = JSON.parse(message.data);
 		if(jsonanswer.type=='answer') {
+			
+			var peer = getPeer(jsonoffer.userID);
 			try{
-				await pc.setRemoteDescription(new RTCSessionDescription(jsonanswer));
+				await peer.setRemoteDescription(jsonanswer);
 			} catch (e) {
-				console.log("givenAnswer pc.setRemoteDescription(new RTCSessionDescription(jsonanswer)); error" + e);
+				console.log("setRemoteDescription error" + e);
 			}
 			
 			return;
@@ -710,7 +663,7 @@ async function websocket() {
 		}
 		
 		var jsonbye = JSON.parse(message.data);
-		if(jsonbye.type=='bye' && isStarted){
+		if(jsonbye.type=='bye'){
 			handleRemoteHangup();
 			
 			userid = jsonbye.userID;
@@ -805,9 +758,6 @@ async function websocket() {
 		
 		video.muted = true;
 		console.log('Adding local stream.');
-		isChannelReady = true;
-		
-		PeerStart();
 		
 		var room = $("#room").val();
 		
@@ -836,9 +786,71 @@ async function websocket() {
 		default:
 			break;
 		}
-		ws.send("room: "+room+", type: join, userID: "+userID);
+
+		ws.send("room: "+room+", type: join, userID: "+userID+", trueId: "+id);
 		
-	}).catch(e => console.log('getUserMedia() error: ', e));
+	}).catch(e => console.log('getUserMedia() error: ', e)).then(function() {
+<%
+		int memberNum = 0;
+		List<String> membersname = new ArrayList<String>();
+		if(dto.getMaster()!=""&&dto.getMaster()!=logindto.getMain_id()){
+			membersname.add(dto.getMaster());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getMaster()%>");
+<%
+		}
+		if(dto.getUser1()!=""&&dto.getUser1()!=logindto.getMain_id()){
+			membersname.add(dto.getUser1());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser1()%>");
+<%		
+		} 
+		if(dto.getUser2()!=""&&dto.getUser2()!=logindto.getMain_id()){
+			membersname.add(dto.getUser2());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser2()%>");
+<%
+		} 
+		if(dto.getUser3()!=""&&dto.getUser3()!=logindto.getMain_id()){
+			membersname.add(dto.getUser3());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser3()%>");
+<%
+		} 
+		if(dto.getUser4()!=""&&dto.getUser4()!=logindto.getMain_id()){
+			membersname.add(dto.getUser4());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser4()%>");
+<%
+		} 
+		if(dto.getUser5()!=""&&dto.getUser5()!=logindto.getMain_id()){
+			membersname.add(dto.getUser5());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser5()%>");
+<%
+		} 
+		if(dto.getUser6()!=""&&dto.getUser6()!=logindto.getMain_id()){
+			membersname.add(dto.getUser6());
+			memberNum++;
+%>
+		PeerStart("<%=dto.getUser6()%>");
+<%
+		}
+		
+		System.out.println(memberNum);
+		for(int i = 0; i<memberNum; i++){
+%>
+			$("#video<%=i+1%>").attr("class","<%=membersname.get(i)%>")
+<%			
+		}
+%>		
+	});
 	
 }
 	

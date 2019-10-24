@@ -129,51 +129,59 @@ public class WebSocket extends TextWebSocketHandler {
 			session.sendMessage(message);
 			return;
 		} else if(message.getPayload().contains("type: \"offer\"")) {
-			String room = message.getPayload().substring(7, message.getPayload().indexOf(", type: \"offer\""));
+			String room = message.getPayload().substring(message.getPayload().indexOf(", room: ")+8, message.getPayload().indexOf(", type: \"offer\""));
+			String userID = message.getPayload().substring(8, message.getPayload().indexOf(", fromID: "));
+			String fromID = message.getPayload().substring(message.getPayload().indexOf(", fromID: ")+10, message.getPayload().indexOf(", room: "));
+			String offermessage = message.getPayload().replaceAll("userID: "+userID+", fromID: "+fromID+", room: "+room+", type: \"offer\", sdp: \"", "");
+			offermessage = offermessage.replaceAll("\"", "");
 			
-			String offermessage = message.getPayload().replaceAll("\\{room: "+room+", type: \"offer\", sdp: \"", "");
-			offermessage = offermessage.replaceAll("\"\\}", "");
-			
-			for (WebSocketSession webSocketSession : sessionList) {
-				if (room.equals(roomList.get(webSocketSession))) {
-					if (!session.getId().equals(webSocketSession.getId())) {
-						webSocketSession.sendMessage(new TextMessage(Jsonoffer(offermessage)));
-					}
+			Iterator<WebSocketSession> sessionIds = mapList.keySet().iterator();
+			while (sessionIds.hasNext()) {
+				WebSocketSession sessionId = sessionIds.next();
+				String value = mapList.get(sessionId);
+				if (value.equals(userID)) {
+					sessionId.sendMessage(new TextMessage(Jsonoffer(offermessage,fromID)));
 				}
 			}
 			
 			return;
 		} else if(message.getPayload().contains("type: \"answer\"")) {
-			String room = message.getPayload().substring(7, message.getPayload().indexOf(", type: \"answer\""));
+			String room = message.getPayload().substring(message.getPayload().indexOf(", room: ")+8, message.getPayload().indexOf(", type: \"answer\""));
+			String userID = message.getPayload().substring( message.getPayload().indexOf(", userID: ")+10, message.getPayload().indexOf(", room: "));
+			String fromID = message.getPayload().substring(8, message.getPayload().indexOf(", userID: "));
+			String answermessage = message.getPayload().replaceAll("fromID: "+fromID+", userID: "+userID+", room: "+room+", type: \"answer\", sdp: \"", "");
+			answermessage = answermessage.replaceAll("\"", "");
 			
-			String answermessage = message.getPayload().replaceAll("\\{room: "+room+", type: \"answer\", sdp: \"", "");
-			answermessage = answermessage.replaceAll("\"\\}", "");
-			
-			for (WebSocketSession webSocketSession : sessionList) {
-				if (room.equals(roomList.get(webSocketSession))) {
-					if (!session.getId().equals(webSocketSession.getId())) {
-						webSocketSession.sendMessage(new TextMessage(Jsonanswer(answermessage)));
-					}
+			Iterator<WebSocketSession> sessionIds = mapList.keySet().iterator();
+			while (sessionIds.hasNext()) {
+				WebSocketSession sessionId = sessionIds.next();
+				String value = mapList.get(sessionId);
+				if (value.equals(fromID)) {
+					sessionId.sendMessage(new TextMessage(Jsonanswer(answermessage,userID)));
 				}
 			}
 			
 			return;
 		} else if(message.getPayload().contains("candidate:")) {
 			
-			String room = message.getPayload().substring(6, message.getPayload().indexOf("~candidate:"));
+			String room = message.getPayload().substring(message.getPayload().indexOf(", room: ")+8, message.getPayload().indexOf("~candidate:"));
 			
-			String candidatemessageclone = message.getPayload().replaceAll("room: "+room+"~", "");
+			String userID = message.getPayload().substring(8, message.getPayload().indexOf(", fromID: "));
+			
+			String fromID = message.getPayload().substring(message.getPayload().indexOf(", fromID: ")+10, message.getPayload().indexOf(", room: "));
+			
+			String candidatemessageclone = message.getPayload().replaceAll("userID: "+userID+", fromID: "+fromID+", room: "+room+"~", "");
 			
 			String[] candidatemessage = candidatemessageclone.split("~");
 			
-			for (WebSocketSession webSocketSession : sessionList) {
-				if (room.equals(roomList.get(webSocketSession))) {
-					if (!session.getId().equals(webSocketSession.getId())) {
-						webSocketSession.sendMessage(new TextMessage(Jsoncandidate(candidatemessage)));
-					}
+			Iterator<WebSocketSession> sessionIds = mapList.keySet().iterator();
+			while (sessionIds.hasNext()) {
+				WebSocketSession sessionId = sessionIds.next();
+				String value = mapList.get(sessionId);
+				if (value.equals(userID)) {
+					sessionId.sendMessage(new TextMessage(Jsoncandidate(candidatemessage,fromID)));
 				}
 			}
-			
 			
 			return;
 			
@@ -196,12 +204,13 @@ public class WebSocket extends TextWebSocketHandler {
 			
 			String room = message.getPayload().substring(6, message.getPayload().indexOf(", type: join"));
 			
-			String userID = message.getPayload().substring(message.getPayload().indexOf(", userID: ")+10);
+			String userID = message.getPayload().substring(message.getPayload().indexOf(", userID: ")+10, message.getPayload().indexOf(", trueId: "));
+			String trueID = message.getPayload().substring(message.getPayload().indexOf(", trueId: ")+10);
 			
 			for (WebSocketSession webSocketSession : sessionList) {
 				if (room.equals(roomList.get(webSocketSession))) {
 					if (!session.getId().equals(webSocketSession.getId())) {
-						webSocketSession.sendMessage(new TextMessage(Jsonjoin(userID)));
+						webSocketSession.sendMessage(new TextMessage(Jsonjoin(userID,trueID)));
 					}
 				}
 			}
@@ -395,9 +404,9 @@ public class WebSocket extends TextWebSocketHandler {
 		return room;
 	}
 	
-	public String Jsonoffer(String offerdata) {
+	public String Jsonoffer(String offerdata, String fromID) {
 
-		JsonObject jsonObject = Json.createObjectBuilder().add("type","offer").add("sdp", offerdata).build();
+		JsonObject jsonObject = Json.createObjectBuilder().add("type","offer").add("sdp", offerdata).add("fromID",fromID).build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
@@ -408,9 +417,9 @@ public class WebSocket extends TextWebSocketHandler {
 
 	}
 	
-	public String Jsonanswer(String answerdata) {
+	public String Jsonanswer(String answerdata,String userID) {
 
-		JsonObject jsonObject = Json.createObjectBuilder().add("type","answer").add("sdp", answerdata).build();
+		JsonObject jsonObject = Json.createObjectBuilder().add("type","answer").add("sdp", answerdata).add("userID", userID).build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
@@ -421,9 +430,9 @@ public class WebSocket extends TextWebSocketHandler {
 
 	}
 	
-	public String Jsoncandidate(String[] candidatedata) {
+	public String Jsoncandidate(String[] candidatedata, String fromID) {
 
-		JsonObject jsonObject = Json.createObjectBuilder().add("candidate",candidatedata[0]).add("component", candidatedata[1]).add("foundation", candidatedata[2]).add("address", candidatedata[3]).add("port", candidatedata[4]).add("priority", candidatedata[5]).add("protocol", candidatedata[6]).add("relatedAddress", candidatedata[7]).add("relatedPort", candidatedata[8]).add("sdpMid", candidatedata[9]).add("sdpMLineIndex", candidatedata[10]).add("tcpType", candidatedata[11]).add("type", candidatedata[12]).add("usernameFragment", candidatedata[13]).build();
+		JsonObject jsonObject = Json.createObjectBuilder().add("candidate",candidatedata[0]).add("component", candidatedata[1]).add("foundation", candidatedata[2]).add("address", candidatedata[3]).add("port", candidatedata[4]).add("priority", candidatedata[5]).add("protocol", candidatedata[6]).add("relatedAddress", candidatedata[7]).add("relatedPort", candidatedata[8]).add("sdpMid", candidatedata[9]).add("sdpMLineIndex", candidatedata[10]).add("tcpType", candidatedata[11]).add("type", candidatedata[12]).add("usernameFragment", candidatedata[13]).add("fromID", fromID).build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
@@ -448,9 +457,9 @@ public class WebSocket extends TextWebSocketHandler {
 
 	}
 	
-	public String Jsonjoin(String userID) {
+	public String Jsonjoin(String userID, String trueID) {
 		
-		JsonObject jsonObject = Json.createObjectBuilder().add("type","join").add("userID",userID).build();
+		JsonObject jsonObject = Json.createObjectBuilder().add("type","join").add("userID",userID).add("trueID", trueID).build();
 		StringWriter write = new StringWriter();
 
 		try (JsonWriter jsonWriter = Json.createWriter(write)) {
