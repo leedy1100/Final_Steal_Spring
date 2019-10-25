@@ -353,8 +353,10 @@ function PeerStart(userID) {
 	console.log('>>>>>> creating peer connection');
 	
 	var pc = createPeerConnection(userID);
-        
-	window.localStream.getTracks().forEach(track => pc.addTrack(track , window.localStream));
+
+	if(typeof window.localStream!='undefined'){
+		window.localStream.getTracks().forEach(track => pc.addTrack(track , window.localStream));
+	}
    
     console.log("PeerStart 끝");
 }
@@ -559,7 +561,7 @@ function closeVideoCall(userID) {
 async function websocket() {
 	$("#textID").focus();
 	
-	ws = new WebSocket("wss://192.168.10.7:8443/bs/echo.do");
+	ws = new WebSocket("wss://192.168.110.180:8443/bs/echo.do");
 	
 	ws.onopen = function() {
 		
@@ -793,57 +795,56 @@ async function websocket() {
 <%
 		int memberNum = 0;
 		List<String> membersname = new ArrayList<String>();
-		if(dto.getMaster()!=""&&dto.getMaster()!=logindto.getMain_id()){
+		System.out.println(logindto.getMain_id());
+		if(dto.getMaster()!=""&&dto.getMaster()!=null&&!dto.getMaster().equals(logindto.getMain_id())){
 			membersname.add(dto.getMaster());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getMaster()%>");
 <%
 		}
-		if(dto.getUser1()!=""&&dto.getUser1()!=logindto.getMain_id()){
+		if(dto.getUser1()!=""&&dto.getUser1()!=null&&!dto.getUser1().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser1());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser1()%>");
 <%		
 		} 
-		if(dto.getUser2()!=""&&dto.getUser2()!=logindto.getMain_id()){
+		if(dto.getUser2()!=""&&dto.getUser2()!=null&&!dto.getUser2().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser2());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser2()%>");
 <%
 		} 
-		if(dto.getUser3()!=""&&dto.getUser3()!=logindto.getMain_id()){
+		if(dto.getUser3()!=""&&dto.getUser3()!=null&&!dto.getUser3().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser3());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser3()%>");
 <%
 		} 
-		if(dto.getUser4()!=""&&dto.getUser4()!=logindto.getMain_id()){
+		if(dto.getUser4()!=""&&dto.getUser4()!=null&&!dto.getUser4().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser4());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser4()%>");
 <%
 		} 
-		if(dto.getUser5()!=""&&dto.getUser5()!=logindto.getMain_id()){
+		if(dto.getUser5()!=""&&dto.getUser5()!=null&&!dto.getUser5().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser5());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser5()%>");
 <%
 		} 
-		if(dto.getUser6()!=""&&dto.getUser6()!=logindto.getMain_id()){
+		if(dto.getUser6()!=""&&dto.getUser6()!=null&&!dto.getUser6().equals(logindto.getMain_id())){
 			membersname.add(dto.getUser6());
 			memberNum++;
 %>
 		PeerStart("<%=dto.getUser6()%>");
 <%
 		}
-		
-		System.out.println(memberNum);
 		for(int i = 0; i<memberNum; i++){
 %>
 			$("#video<%=i+1%>").attr("class","<%=membersname.get(i)%>")
